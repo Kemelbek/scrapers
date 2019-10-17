@@ -1,0 +1,35 @@
+
+name: kg_kloop
+
+# A title for display in the UI:
+description: 'Scraping of Kloop.kg Website'
+
+# Uncomment to run this scraper automatically:
+# schedule: weekly
+pipeline:
+
+  init:
+    # This first stage will get the ball rolling with a seed URL.
+    method: kg_kloop.kg_kloop_fetch:fetch_links
+    handle:
+      pass: fetch
+
+  fetch:
+    method: kg_kloop.kg_kloop_fetch:fetch_page
+    params:
+      # These rules specify which pages should be scraped or included:
+    handle:
+      pass: parse
+
+  parse:
+    # Parse the scraped pages to find if they contain additional links.
+    method: kg_kloop.kg_kloop_parse:extract_data
+    handle:
+      store: store
+      fetch: fetch
+
+  store:
+    # Store the crawled documents to a directory
+    method: db
+    params:
+      table: "kloop_news_ate"

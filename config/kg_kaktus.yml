@@ -1,0 +1,36 @@
+# Scraper for the OCCRP web site.
+# The goal is not to download all HTML, but only PDFs & other documents
+# linked from the page as proof.
+name: kg_kaktus
+
+# A title for display in the UI:
+description: Scraping of Kaktus.media Website
+
+# Uncomment to run this scraper automatically:
+# schedule: weekly
+pipeline:
+
+  init:
+    # This first stage will get the ball rolling with a seed URL.
+    method: kg_kaktus.kg_kaktus_fetch:fetch_links
+    handle:
+      pass: fetch
+
+  fetch:
+    # Download the seed page
+    method: kg_kaktus.kg_kaktus_fetch:fetch_page
+    handle:
+      pass: parse
+
+  parse:
+    # Parse the scraped pages to find if they contain additional links.
+    method: kg_kaktus.kg_kaktus_parse:extract_data
+    handle:
+      store: store
+      fetch: fetch
+
+  store:
+    # Store the crawled documents to a directory
+    method: directory
+    params:
+      path: /data/results

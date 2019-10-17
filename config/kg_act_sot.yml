@@ -1,0 +1,48 @@
+
+# Scraper for act.sot.kg web site.
+name: kg_act_sot
+
+# A title for display in the UI:
+description: 'Kyrgyz court cases' 
+
+# Uncomment to run this scraper automatically:
+schedule: daily
+delay: 1
+stealthy: true
+pipeline:
+
+  init:
+    method: kg_act_sot.kg_act_sot_fetch:fetch_links
+    handle:
+      case_url: fetch
+
+  fetch:
+    method: kg_act_sot.kg_act_sot_fetch:fetch_case_page
+    params:
+    handle:
+      case_page: extractdata
+
+  extractdata:
+    method: kg_act_sot.kg_act_sot_parse:extract
+    handle:
+      store: store
+      download: download
+
+  download:
+    method: kg_act_sot.kg_act_sot_download:download
+    handle:
+      pass: pass
+  
+  store:
+    method: db
+    params:
+      table: "kg_act_sot"
+      unique: case_url
+      children:
+        -
+          key: acts
+          table_suffix: acts
+          unique: act_download_url
+        -
+          key: meetings
+          table_suffix: meetings
