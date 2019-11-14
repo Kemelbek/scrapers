@@ -1,8 +1,8 @@
 
-name: kg_24
+name: kg_azattyk
 
 # A title for display in the UI:
-description: 'Scraping of 24.kg Website'
+description: 'Scraping of Azattyk.org Website'
 
 # Uncomment to run this scraper automatically:
 # schedule: weekly
@@ -10,20 +10,35 @@ pipeline:
 
   init:
     # This first stage will get the ball rolling with a seed URL.
-    method: kg_24.kg_24_fetch:fetch_pages
+    method: kg_azattyk.kg_azattyk_fetch:fetch_pages
     handle:
       pass: parse
 
-
   parse:
     # Parse the scraped pages to find if they contain additional links.
-    method: kg_24.kg_24_parse:extract_data
+    method: kg_azattyk.kg_azattyk_parse:extract_data
     handle:
       store: store
+      download: download
+
+  download:
+    method: kg_azattyk.kg_azattyk_download:download
+    handle:
+      pass: pass
 
 
   store:
     # Store the crawled documents to a directory
     method: db
     params:
-      table: "kg_24"
+      table: "kg_azattyk"
+      unique: 'title'
+      children:
+      -
+        key: images
+        table_suffix: images
+        unique: 'image_url'
+
+      - key: comments
+        table_suffix: comments
+        unique: 'comment_text'

@@ -10,20 +10,31 @@ pipeline:
 
   init:
     # This first stage will get the ball rolling with a seed URL.
-    method: kg_kse.kg_24_fetch:fetch_pages
+    method: kg_24.kg_24_fetch:fetch_pages
     handle:
-      pass: fetch
+      pass: parse
 
 
   parse:
     # Parse the scraped pages to find if they contain additional links.
-    method: kg_kse.kg_24_parse:extract_data
+    method: kg_24.kg_24_parse:extract_data
     handle:
       store: store
+      download: download
 
+  download:
+    method: kg_24.kg_24_download:download
+    handle:
+      pass: pass
 
   store:
     # Store the crawled documents to a directory
     method: db
     params:
-      table: "kg_twenty_four"
+      table: "kg_24"
+      unique: 'title'
+      children:
+      -
+        key: images
+        table_suffix: images
+        unique: 'image_url'
