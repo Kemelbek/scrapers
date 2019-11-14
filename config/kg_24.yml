@@ -1,0 +1,29 @@
+
+name: kg_24
+
+# A title for display in the UI:
+description: 'Scraping of 24.kg Website'
+
+# Uncomment to run this scraper automatically:
+# schedule: weekly
+pipeline:
+
+  init:
+    # This first stage will get the ball rolling with a seed URL.
+    method: kg_kse.kg_24_fetch:fetch_pages
+    handle:
+      pass: fetch
+
+
+  parse:
+    # Parse the scraped pages to find if they contain additional links.
+    method: kg_kse.kg_24_parse:extract_data
+    handle:
+      store: store
+
+
+  store:
+    # Store the crawled documents to a directory
+    method: db
+    params:
+      table: "kg_twenty_four"
