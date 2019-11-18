@@ -17,7 +17,7 @@ def extract_data(context, data):
     body = page.xpath('//div[@class="wsw"][parent::div[@id="article-content"]]/p/text()')
 
     for el in body:
-        str = str + el
+        str = str +" "+ el
 
     news = {'news_url': response.url,
             'category': _gettext(page.xpath('//div[@class="category"]/a/text()')),

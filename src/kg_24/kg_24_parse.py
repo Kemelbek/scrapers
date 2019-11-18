@@ -25,7 +25,7 @@ def extract_data(context, data):
     body = page.xpath('//div[@class="cont"]/p//text()')
 
     for el in body:
-        body_str = body_str + el
+        body_str = body_str +" "+ el
 
     print('BODY : ', body_str)
 

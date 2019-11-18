@@ -1,11 +1,11 @@
-timeData = '12,11,2019 16:07'
+timeData = '14 ноября 2019 09:10'
 
 import re
 import datetime
 import locale
 
 locale.setlocale(locale.LC_TIME, 'ru_RU.UTF-8')
-result = datetime.datetime.strptime(timeData, u'%d,%m,%Y %H:%M')
+result = datetime.datetime.strptime(timeData, u'%d %B %Y %H:%M')
 # article = {'date': f'{result}'}
 print('TIME: ', result)
 
