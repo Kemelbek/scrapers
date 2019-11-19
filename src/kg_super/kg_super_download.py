@@ -9,7 +9,7 @@ def download(context, data):
 
 
 def mv_file_to_image_dir(data, image_file):
-    news_url_name = data['news_url'].split('/')[-1]
+    news_url_name = data['news_url'].split('/')[-2]
     create_image_dir(news_url_name)
     file_type = data['image_url'].split('.')[-1].lower()
     shutil.move(image_file.file_path,

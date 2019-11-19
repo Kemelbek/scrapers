@@ -31,15 +31,15 @@ print('TIME: ', result)
 #         return [list, '']
 #
 #
-# z =['/live/audio/73', '/a/3023131.html']
+z =['https://www.super.kg/kabar/news/287577/']
 # for link in z:
 #     if 'live' not in link.split('/')[1]:
 #         print('LINK: ', link)
 
     # else:
     #     print('LINK RIGHT: ', link)
-# news_url_name = z.split('/')[-2]
-# print(news_url_name)
+news_url_name = z[0].split('/')[-1]
+print(news_url_name)
 # z = ['просмотров: 1109']
 # z = ['простые - 373 473 шт.; привилегированные - 8 164 шт.']
 # z = ['500 335 шт.']

@@ -3,39 +3,29 @@ import json
 import datetime
 import locale
 
+
 def extract_data(context, data):
     response = context.http.get(data['link'])
     page = response.html
 
-    # date = page.xpath('//div/time/text()')[0]
     locale.setlocale(locale.LC_TIME, 'ru_RU.UTF-8')
 
     str = ''
-    str_li = ''
-    str_tag = ''
 
     body = page.xpath('//article/div/p//text()')
-    extra_body = page.xpath('//div[ @class ="js-mediator-article"]//li/text()')
-    tags_texts = page.xpath('//div[@class="l"]/a/text()')
-    tags_urls = page.xpath('//div[@class="l"]/a/@href')
+    pages = page.xpath('//div[@class="pages"]/table/tbody/tr/td//text()')
 
     for el in body:
         str = str + " " + el
 
-    # for el_li in extra_body:
-    #     str_li = str_li + " " + el_li
-    #
-    # for el_tag in tags_texts:
-    #     str_tag = str_tag + " " + el_tag
-
     news = {'news_url': response.url,
             'category': _gettext(page.xpath('//div[@class="janylyk_module_title"]/span/a/text()')),
-            'title': _gettext(page.xpath('//h1/text()')),
+            'title': _gettext(page.xpath('//h1//text()')),
             'body': _doesexist(str),
             'date': _gettext(page.xpath('//time/@datetime')),
             'author': _gettext(page.xpath('//section/span[2]/text()')),
             'rating': _gettext(page.xpath
-                                        ('//span[@id="janylyk_vote"]/text()')),
+                               ('//span[@id="janylyk_vote"]/text()')),
             'num_of_views_for_last_15_minutes': _gettext(page.xpath('//span[@class="act-stat"]/span[1]/text()'))
             }
 
@@ -48,15 +38,15 @@ def extract_data(context, data):
 
     images = []
     for image_scroll in images_scroll:
-        images.append(image_scroll)
-        print("IMAGE SCROLL : ", image_scroll)
+        images.append('https:'+image_scroll)
+        print("IMAGE SCROLL : ", 'https:'+image_scroll)
 
     for image_simple in images_simple:
-        images.append(image_simple[2:])
-        print("IMAGE SIMPLE : ", image_simple)
+        images.append('https:'+image_simple)
+        print("IMAGE SIMPLE : ", 'https:'+image_simple)
 
     for image_viewer in images_viewer:
-        images.append('https://www.super.kg'+image_viewer)
+        images.append('https://www.super.kg' + image_viewer)
         print("IMAGE VIEWER : ", image_viewer)
 
     image_list = []
@@ -67,39 +57,55 @@ def extract_data(context, data):
         image_list.append(image_info)
         context.emit(rule='download', data={'image_url': image_info['image_url'],
                                             'news_url': image_info['news_url']})
-
-    # tags_list = []
-    #
-    # for tag, tag_url in zip(tags_texts, tags_urls):
-    #     tags_info = {
-    #         'news_url': response.url,
-    #         'tag_name': tag,
-    #         'tag_url': tag_url
-    #     }
-    #     tags_list.append(tags_info)
-
-    comment_users = page.xpath('//a[@class="user-info"]/text()')
-    comment_texts = page.xpath('//div[@class="mess"]/text()')
-    comment_dates = page.xpath('//div[@class="date"]/text()')
-
     comments_list = []
 
+    for num_of_page in pages:
+        response_of_page = context.http.get(data['link'] + f'?q&pg={num_of_page}')
+        page1 = response_of_page.html
+        comment_users = page1.xpath('//a[@class="user-info"]/text()')
+        comment_texts = page1.xpath('//div[@class="mess"]/text()')
+        comment_dates = page1.xpath('//div[@class="date"]/text()')
 
+        comment_texts_array = []
 
-    if len(comment_dates) > 0:
-        for comment_user, comment_date in zip(comment_users, comment_dates):
-            comments_info = {'news_url': response.url,
-                             'comment_author': comment_user.strip(),
-                             # 'comment_text': comment_text.strip(),
-                             'comment_date': datetime.datetime.strptime(comment_date.strip(), u'%d.%m.%Y. %H:%M')}
-            comments_list.append(comments_info)
-            print('COMMENTS INFO : ', comments_info)
+        for comment_text in comment_texts:
+            if len(comment_text) > 0:
+                comment_texts_array.append(comment_text)
+        print("COMMENT USERS ARRAY : ", comment_texts_array)
+        print("TEXT LENGTH : ", len(comment_texts_array))
+        print("USERS LENGTH : ", len(comment_users))
 
-    comment_text_user =[]
-    for comment_text in comment_texts:
-        comment_text.strip()
-        comment_text_user.append(comment_text)
-    print(len(comment_text_user))
+        if len(comment_dates) > 0:
+            for comment_user, comment_text, comment_date in zip(comment_users, comment_texts_array, comment_dates):
+                comments_info = {'news_url': response.url,
+                                 'comment_author': comment_user.strip(),
+                                 'comment_text': comment_text.strip(),
+                                 'comment_date': datetime.datetime.strptime(comment_date.strip(), u'%d.%m.%Y. %H:%M')}
+                comments_list.append(comments_info)
+                print('COMMENTS INFO : ', comments_info)
+
+    # comment_users = page.xpath('//a[@class="user-info"]/text()')
+    # comment_texts = page.xpath('//div[@class="mess"]/text()')
+    # comment_dates = page.xpath('//div[@class="date"]/text()')
+    #
+    # comments_list = []
+    # comment_texts_array = []
+    #
+    # for comment_text in comment_texts:
+    #     if len(comment_text)>0:
+    #         comment_texts_array.append(comment_text)
+    # print("COMMENT USERS ARRAY : ", comment_texts_array)
+    # print("TEXT LENGTH : ", len(comment_texts_array))
+    # print("USERS LENGTH : ", len(comment_users))
+    #
+    # if len(comment_dates) > 0:
+    #     for comment_user, comment_text, comment_date in zip(comment_users, comment_texts_array, comment_dates):
+    #         comments_info = {'news_url': response.url,
+    #                          'comment_author': comment_user.strip(),
+    #                          'comment_text': comment_text.strip(),
+    #                          'comment_date': datetime.datetime.strptime(comment_date.strip(), u'%d.%m.%Y. %H:%M')}
+    #         comments_list.append(comments_info)
+    #         print('COMMENTS INFO : ', comments_info)
 
     news['images'] = image_list
     news['comments'] = comments_list
@@ -108,7 +114,6 @@ def extract_data(context, data):
     print("NEWS: ", news)
 
     context.emit(rule='store', data=news)
-
 
 
 def _gettext(list):

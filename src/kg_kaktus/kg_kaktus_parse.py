@@ -16,7 +16,7 @@ def extract_data(context, data):
     str_tag = ''
 
     body = page.xpath('//div[@class="js-mediator-article"]//p/text()')
-    extra_body = page.xpath('//div[ @class ="js-mediator-article"]//li/text()')
+    extra_body = page.xpath('//div[ @class="js-mediator-article"]//li/text()')
     tags_texts = page.xpath('//div[@class="l"]/a/text()')
     tags_urls = page.xpath('//div[@class="l"]/a/@href')
 
@@ -40,23 +40,23 @@ def extract_data(context, data):
             }
 
     images_scroll = page.xpath('//div[@class="topic-gallery-none"]/img/@src')
-    # images_simple = page.xpath('//img[@style="display:none;"]/@src')
-    images_viewer = page.xpath('//a[@style="display: block;"]//@src')
-    # print("IMAGES SIMPLE : ", images_simple)
-    print("IMAGES VIEWER : ", images_viewer)
+    images_simple = page.xpath('//img[@style="display:none;"]/@src')
+    # images_viewer = page.xpath('//a[@style="display: block;"]//@src')
+    print("IMAGES SIMPLE : ", images_simple)
+    # print("IMAGES VIEWER : ", images_viewer)
 
     images = []
     for image_scroll in images_scroll:
         images.append(image_scroll)
         print("IMAGES SCROLL : ", image_scroll)
 
-    # for image_simple in images_simple:
-    #     images.append(image_simple)
-    #     print("IMAGES SIMPLE : ", image_simple)
+    for image_simple in images_simple:
+        images.append(image_simple)
+        print("IMAGES SIMPLE : ", image_simple)
 
-    for image_viewer in images_viewer:
-        images.append(image_viewer)
-        print("IMAGES VIEWER : ", image_viewer)
+    # for image_viewer in images_viewer:
+    #     images.append(image_viewer)
+    #     print("IMAGES VIEWER : ", image_viewer)
 
     image_list = []
     for image in images:
@@ -77,20 +77,26 @@ def extract_data(context, data):
         }
         tags_list.append(tags_info)
 
-    comment_users = page.xpath('//div[following-sibling::div[@class="date"]]|a//text()')
+    comment_users = page.xpath('//div[following-sibling::div[@class="date"]]//text()')
     comment_dates = page.xpath('//div[@class="date"]//text()')
+    print("COMMENT USERS: ", comment_users)
 
     comments_list = []
+    comment_users_array = []
     index = 1
 
+    for comment_user in comment_users:
+        if len(comment_user) > 0:
+            comment_users_array.append(comment_user)
+
     if len(comment_dates) > 0:
-        for comment_user,  comment_date in zip(comment_users,  comment_dates):
+        for comment_user,  comment_date in zip(comment_users_array,  comment_dates):
 
             comments_info = {'news_url': response.url,
-                             'comment_author': comment_user.strip(),
-                             'comment_text': page.xpath
-                             (f'//div[@class="message j_message "][{index}]/div[@class="clearfix"]/div[@class="text"]//text()'),
-                             'comment_date': datetime.datetime.strptime(comment_date, u'%d.%m.%Y %H:%M')}
+                             'comment_author': _doesexist(comment_user),
+                             'comment_text': _gettext(page.xpath
+                             (f'//div[@class="message j_message "][{index}]/div[@class="clearfix"]/div[@class="text"]//text()')),
+                             'comment_date': datetime.datetime.strptime(comment_date, u'%d.%m.%Y, %H:%M')}
             comments_list.append(comments_info)
             index = index + 1
             print('COMMENTS INFO : ', comments_info)
