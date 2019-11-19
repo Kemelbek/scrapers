@@ -1,8 +1,8 @@
 
-name: kg_kaktus
+name: kg_super
 
 # A title for display in the UI:
-description: 'Scraping of Kaktus.media Website'
+description: 'Scraping of Super.kg Website'
 
 # Uncomment to run this scraper automatically:
 # schedule: weekly
@@ -10,19 +10,19 @@ pipeline:
 
   init:
     # This first stage will get the ball rolling with a seed URL.
-    method: kg_kaktus.kg_kaktus_fetch:fetch_links
+    method: kg_super.kg_super_fetch:fetch_links
     handle:
       pass: parse
 
   parse:
     # Parse the scraped pages to find if they contain additional links.
-    method: kg_kaktus.kg_kaktus_parse:extract_data
+    method: kg_super.kg_super_parse:extract_data
     handle:
       store: store
       download: download
 
   download:
-    method: kg_kaktus.kg_kaktus_download:download
+    method: kg_super.kg_super_download:download
     handle:
       pass: pass
 
@@ -31,7 +31,7 @@ pipeline:
     # Store the crawled documents to a directory
     method: db
     params:
-      table: "kg_kaktus"
+      table: "kg_super"
       unique: 'title'
       children:
       -
@@ -42,7 +42,7 @@ pipeline:
       - key: comments
         table_suffix: comments
         unique: 'comment_text'
-
-      - key: tag_list
-        table_suffix: tag_list
-        unique: 'tag_name'
+#
+#      - key: tag_list
+#        table_suffix: tag_list
+#        unique: 'tag_name'

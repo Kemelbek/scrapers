@@ -78,23 +78,22 @@ def extract_data(context, data):
         tags_list.append(tags_info)
 
     comment_users = page.xpath('//div[following-sibling::div[@class="date"]]|a//text()')
-    comment_texts = page.xpath('//div[@class="text"]|p//text()')
     comment_dates = page.xpath('//div[@class="date"]//text()')
 
     comments_list = []
+    index = 1
 
     if len(comment_dates) > 0:
         for comment_user,  comment_date in zip(comment_users,  comment_dates):
+
             comments_info = {'news_url': response.url,
                              'comment_author': comment_user.strip(),
+                             'comment_text': page.xpath
+                             (f'//div[@class="message j_message "][{index}]/div[@class="clearfix"]/div[@class="text"]//text()'),
                              'comment_date': datetime.datetime.strptime(comment_date, u'%d.%m.%Y %H:%M')}
             comments_list.append(comments_info)
+            index = index + 1
             print('COMMENTS INFO : ', comments_info)
-
-        for comment_text in comment_texts:
-            comments_info['comment_text': comment_text.strip()]
-
-
 
     news['images'] = image_list
     news['comments'] = comments_list
